@@ -179,9 +179,54 @@ namespace FakeEight
 
                 case 0xF000: // Memory, timer and sound operations ***
 
-                    if ((opcode & 0x0FF) == 0x01E) // FX1E: Add VX to I
+                    var opcodeLastByte = (opcode & 0x0FF);
+
+                    switch (opcodeLastByte)
                     {
-                        xFX1E_MemAddVxToI(opcode);
+                        case 0x07: // FX07: Timer, Set VX to value of delay timer
+
+                            // TODO
+                            break;
+
+                        case 0x0A: // FX0A: KeyOp, Await key press, then store in VX (Blocking Op)
+
+                            // TODO
+                            break;
+
+                        case 0x015: // FX15: Timer, Set delay timer to VX
+
+                            // TODO
+                            break;
+
+                        case 0x018: // FX18: Sound, Set sound timer to VX
+
+                            // TODO
+                            break;
+
+                        case 0x01E: // FX1E: Mem, Add VX to I
+                            
+                            xFX1E_MemAddVxToI(opcode);
+                            break;
+
+                        case 0x029: // FX29: Mem, Set I to location of sprite for font character in VX
+
+                            // TODO
+                            break;
+
+                        case 0x033: // FX33: BCD, Binary magic (set BCD)
+
+                            xFX33_BcdStoreVxAtI12(opcode);
+                            break;
+
+                        case 0x055: // FX55: Mem, Store V0 to VX in memory at I
+
+                            // TODO
+                            break;
+
+                        case 0x065: // FX65: Mem, Load V0 to VX from memory at I
+
+                            // TODO
+                            break;
                     }
 
                     break;
@@ -377,6 +422,19 @@ namespace FakeEight
             }
 
             Console.WriteLine(" * Draw operation, {0} pixels changed", pxChangeNum);
+        }
+
+        /// <summary>
+        /// Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
+        /// </summary>
+        public void xFX33_BcdStoreVxAtI12(ushort opcode)
+        {
+            // Code from TJA @ http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8.shtml
+            // I'm too dumb to understand this :-(
+
+            Io.Ram.WriteByte(ir, (byte)(rv[(opcode & 0x0F00) >> 8] / 100));
+            Io.Ram.WriteByte(ir + 1, (byte)((rv[(opcode & 0x0F00) >> 8] / 10) % 10));
+            Io.Ram.WriteByte(ir + 2, (byte)((rv[(opcode & 0x0F00) >> 8] % 100) % 10));
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace FakeEight
             var t = new Thread(new ThreadStart(() =>
             {
                 VirtualMachine = new VirtualMachine();
-                VirtualMachine.Frequency = 60;
+                VirtualMachine.Frequency = 1;
                 VirtualMachine.Run("roms/pong.ch8");
             }));
             t.Priority = ThreadPriority.Normal;
