@@ -220,12 +220,12 @@ namespace FakeEight
 
                         case 0x055: // FX55: Mem, Store V0 to VX in memory at I
 
-                            // TODO
+                            xFX55_MemDump(opcode);
                             break;
 
                         case 0x065: // FX65: Mem, Load V0 to VX from memory at I
 
-                            // TODO
+                            xFX65_MemRestore(opcode);
                             break;
                     }
 
@@ -465,5 +465,36 @@ namespace FakeEight
             ir = nextValue;
         }
 
+        /// <summary>
+        /// Stores V0 to VX (including VX) in memory starting at address I.
+        /// I is increased by 1 for each value written.
+        /// </summary>
+        public void xFX55_MemDump(ushort opcode)
+        {
+            var xRegNum = (ushort)((opcode & 0x0F00) >> 8);
+            
+            for (var regNum = 0; regNum <= xRegNum; regNum++)
+            {
+                Io.Ram.WriteByte(ir++, rv[regNum]);
+            }
+
+            Console.WriteLine(" * MEM: Dumped V0 - V{0} to RAM.", xRegNum);
+        }
+
+        /// <summary>
+        /// Fills V0 to VX (including VX) with values from memory starting at address I.
+        /// I is increased by 1 for each value written.
+        /// </summary>
+        public void xFX65_MemRestore(ushort opcode)
+        {
+            var xRegNum = (ushort)((opcode & 0x0F00) >> 8);
+
+            for (var regNum = 0; regNum <= xRegNum; regNum++)
+            {
+                rv[regNum] = Io.Ram.ReadByte(ir++);
+            }
+
+            Console.WriteLine(" * MEM: Set V0 - V{0} from RAM.", xRegNum);
+        }
     }
 }
