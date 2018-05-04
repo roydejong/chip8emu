@@ -210,7 +210,7 @@ namespace FakeEight
 
                         case 0x029: // FX29: Mem, Set I to location of sprite for font character in VX
 
-                            // TODO
+                            xFX29_MemJumpToFontChar(opcode);
                             break;
 
                         case 0x033: // FX33: BCD, Binary magic (set BCD)
@@ -425,6 +425,24 @@ namespace FakeEight
         }
 
         /// <summary>
+        /// Sets I to the location of the sprite for the character in VX.
+        /// Characters 0-F (in hexadecimal) are represented by a 4x5 font.
+        /// </summary>
+        public void xFX29_MemJumpToFontChar(ushort opcode)
+        {
+            var xNum = (ushort)((opcode & 0x0F00) >> 8);
+            var xVal = rv[xNum];
+
+            // Fonts are loaded into memory on VM startup, from address 0x50 onward
+            // Each character (hex, so 0 - F) has 5 bytes
+            // xVal is the number of the character, so 0 - 16
+
+            ir = 0x50 + (xVal * 5);
+
+            Console.WriteLine(" * MEM: Jump I to font character at position {0}, now at {1}", xVal, ir);
+        }
+
+        /// <summary>
         /// Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
         /// </summary>
         public void xFX33_BcdStoreVxAtI12(ushort opcode)
@@ -435,6 +453,8 @@ namespace FakeEight
             Io.Ram.WriteByte(ir, (byte)(rv[(opcode & 0x0F00) >> 8] / 100));
             Io.Ram.WriteByte(ir + 1, (byte)((rv[(opcode & 0x0F00) >> 8] / 10) % 10));
             Io.Ram.WriteByte(ir + 2, (byte)((rv[(opcode & 0x0F00) >> 8] % 100) % 10));
+
+            Console.WriteLine(" * BCD: Set binary coded decimal");
         }
 
         /// <summary>
@@ -463,6 +483,8 @@ namespace FakeEight
             }
 
             ir = nextValue;
+
+            Console.WriteLine(" * MEM: Add V{2} [{0}] to I, now at {1}.", xVal, nextValue, xNum);
         }
 
         /// <summary>
