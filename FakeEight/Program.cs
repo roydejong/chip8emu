@@ -26,7 +26,7 @@ namespace FakeEight
             {
                 VirtualMachine = new VirtualMachine();
                 VirtualMachine.Frequency = 60;
-                VirtualMachine.Run("roms/chip8em.ch8");
+                VirtualMachine.Run("roms/pong.ch8");
             }));
             t.Priority = ThreadPriority.Normal;
             t.Start();
