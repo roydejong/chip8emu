@@ -179,6 +179,11 @@ namespace FakeEight
 
                 case 0xF000: // Memory, timer and sound operations ***
 
+                    if ((opcode & 0x0FF) == 0x01E) // FX1E: Add VX to I
+                    {
+                        xFX1E_MemAddVxToI(opcode);
+                    }
+
                     break;
 
                 default:
@@ -341,6 +346,8 @@ namespace FakeEight
             rv[15] = 0;
 
             // Loop through target coordinates, read sprite data from memory address I
+            var pxChangeNum = 0;
+
             for (var highNum = 0; highNum < nHeight; highNum++)
             {
                 byte hMemVal = Io.Ram.ReadByte(ir + highNum);
@@ -364,9 +371,41 @@ namespace FakeEight
                         }
 
                         Io.Display.SetPixel(drawX, drawY, !pixelIsOn);
+                        pxChangeNum++;
                     }
                 }
             }
+
+            Console.WriteLine(" * Draw operation, {0} pixels changed", pxChangeNum);
         }
+
+        /// <summary>
+        /// Adds VX to I.
+        /// </summary>
+        /// <remarks>
+        /// VF is set to 1 when there is a range overflow (I+VX>0xFFF), and to 0 when there isn't.
+        /// This is an undocumented feature of the CHIP-8 and used by the Spacefight 2091! game.
+        /// </remarks>
+        public void xFX1E_MemAddVxToI(ushort opcode)
+        {
+            var xNum = (ushort)((opcode & 0x0F00) >> 8);
+            var xVal = rv[xNum];
+
+            var nextValue = ir + xVal;
+
+            if (nextValue >= 0xFFF)
+            {
+                // Overflow
+                rv[15] = 0;
+            }
+            else
+            {
+                // Not overflow
+                rv[15] = 0;
+            }
+
+            ir = nextValue;
+        }
+
     }
 }
